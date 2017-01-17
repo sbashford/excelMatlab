@@ -8,7 +8,13 @@ classdef ExcelMatlab < handle
     
     methods
         function self = ExcelMatlab(file)
-            self.pathToFile = file;
+            stack = dbstack('-completenames', 1);
+            if size(stack)
+                self.pathToFile = [stack(1).file, '\', file];
+            else
+                self.pathToFile = [pwd(), '\', file];
+            end
+            
             self.excelApplication = actxserver('Excel.Application');
             self.excelApplication.DisplayAlerts = false;
             try
@@ -30,9 +36,10 @@ classdef ExcelMatlab < handle
         end
         
         function writeToSheet(self, data, sheet, topLeftRow, topLeftCol)
-            try
-                sheetToWrite = self.excelFileSheets(sheet);
-            catch
+            sheetNumber = self.findSheetNumber(sheet);
+            if sheetNumber
+                sheetToWrite = self.excelFileSheets(sheetNumber);
+            else
                 numberOfSheets = self.excelFileSheets.Count;
                 self.excelFileSheets.Add([], self.excelFileSheets.Item(numberOfSheets));
                 numberOfSheets = numberOfSheets + 1;
@@ -45,6 +52,18 @@ classdef ExcelMatlab < handle
             excelRange = getExcelRangeString(topLeftCol, BottomRightCol, topLeftRow, BottomRightRow);
             rangeToWrite = get(sheetToWrite, 'Range', excelRange);
             rangeToWrite.Value = data;
+        end
+    end
+    
+    methods (Access = 'protected')
+        function sheetNumber = findSheetNumber(self, sheet)
+            numberOfSheets = self.excelFileSheets.Count;
+            namesOfSheets = cell(1, numberOfSheets);
+            for i = 1:numberOfSheets;
+                namesOfSheets{i} = self.excelFileSheets.Item(i).Name;
+            end
+
+            [~, sheetNumber] = ismember(sheet, namesOfSheets);
         end
     end
 end
