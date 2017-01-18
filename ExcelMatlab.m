@@ -4,26 +4,33 @@ classdef ExcelMatlab < handle
         excelFileWorkbook
         excelFileSheets
         fullPathToFile
+        successSaving = false
     end
     
     methods
         function self = ExcelMatlab(fullPathToFile)
-            self.fullPathToFile = fullPathToFile
-            self.excelApplication = actxserver('Excel.Application');
+            self.fullPathToFile = fullPathToFile;
+            self.excelApplication = COM.Excel_Application('server', '', 'IDispatch');
             self.excelApplication.DisplayAlerts = false;
             try
                 self.excelFileWorkbook = self.excelApplication.Workbooks.Open(fullPathToFile);
             catch
                 self.excelFileWorkbook = self.excelApplication.Workbooks.Add();
             end
+            
+            try
+                self.excelFileWorkbook.SaveAs(fullPathToFile);
+                self.successSaving = true;
+            catch MException
+                display(MException.message);
+                throw(MException);
+            end
             self.excelFileSheets = self.excelFileWorkbook.Sheets;
         end
         
         function delete(self)
-            try
+            if self.successSaving
                 self.excelFileWorkbook.SaveAs(self.fullPathToFile);
-            catch MException
-                display(MException.message);
             end
             Quit(self.excelApplication);
             delete(self.excelApplication);
