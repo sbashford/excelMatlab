@@ -1,8 +1,8 @@
 classdef ExcelMatlab < handle
     properties (Access = 'protected')
-        excelApplication
-        excelFileWorkbook
-        excelFileSheets
+        app
+        workbook
+        sheets
         fullPathToFile
         successSaving = false
     end
@@ -10,41 +10,41 @@ classdef ExcelMatlab < handle
     methods
         function self = ExcelMatlab(fullPathToFile)
             self.fullPathToFile = fullPathToFile;
-            self.excelApplication = COM.Excel_Application('server', '', 'IDispatch');
-            self.excelApplication.DisplayAlerts = false;
+            self.app = COM.Excel_Application('server', '', 'IDispatch');
+            self.app.DisplayAlerts = false;
             try
-                self.excelFileWorkbook = self.excelApplication.Workbooks.Open(fullPathToFile);
+                self.workbook = self.app.Workbooks.Open(fullPathToFile);
             catch
-                self.excelFileWorkbook = self.excelApplication.Workbooks.Add();
+                self.workbook = self.app.Workbooks.Add();
             end
             
             try
-                self.excelFileWorkbook.SaveAs(fullPathToFile);
+                self.workbook.SaveAs(fullPathToFile);
                 self.successSaving = true;
             catch MException
                 display(MException.message);
                 throw(MException);
             end
-            self.excelFileSheets = self.excelFileWorkbook.Sheets;
+            self.sheets = self.workbook.Sheets;
         end
         
         function delete(self)
             if self.successSaving
-                self.excelFileWorkbook.SaveAs(self.fullPathToFile);
+                self.workbook.SaveAs(self.fullPathToFile);
             end
-            Quit(self.excelApplication);
-            delete(self.excelApplication);
+            Quit(self.app);
+            delete(self.app);
         end
         
         function writeToSheet(self, data, sheet, topLeftRow, topLeftCol)
             sheetNumber = self.findSheetNumber(sheet);
             if sheetNumber
-                sheetToWrite = self.excelFileSheets.Item(sheetNumber);
+                sheetToWrite = self.sheets.Item(sheetNumber);
             else
-                numberOfSheets = self.excelFileSheets.Count;
-                self.excelFileSheets.Add([], self.excelFileSheets.Item(numberOfSheets));
+                numberOfSheets = self.sheets.Count;
+                self.sheets.Add([], self.sheets.Item(numberOfSheets));
                 numberOfSheets = numberOfSheets + 1;
-                sheetToWrite = self.excelFileSheets.Item(numberOfSheets);
+                sheetToWrite = self.sheets.Item(numberOfSheets);
                 sheetToWrite.Name = sheet;
             end
             
@@ -58,10 +58,10 @@ classdef ExcelMatlab < handle
     
     methods (Access = 'protected')
         function sheetNumber = findSheetNumber(self, sheet)
-            numberOfSheets = self.excelFileSheets.Count;
+            numberOfSheets = self.sheets.Count;
             namesOfSheets = cell(1, numberOfSheets);
             for i = 1:numberOfSheets;
-                namesOfSheets{i} = self.excelFileSheets.Item(i).Name;
+                namesOfSheets{i} = self.sheets.Item(i).Name;
             end
 
             [~, sheetNumber] = ismember(sheet, namesOfSheets);
