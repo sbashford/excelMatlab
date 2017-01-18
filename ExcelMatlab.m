@@ -22,7 +22,7 @@ classdef ExcelMatlab < handle
                 self.workbook.SaveAs(fullPathToFile);
                 self.successSaving = true;
             catch MException
-                display(MException.message);
+                fprintf(['unable to write to ', fullPathToFile, '\n']);
                 throw(MException);
             end
             self.sheets = self.workbook.Sheets;
