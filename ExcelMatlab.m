@@ -7,18 +7,12 @@ classdef ExcelMatlab < handle
     end
     
     methods
-        function self = ExcelMatlab(file)
-            stack = dbstack('-completenames', 1);
-            if size(stack)
-                self.fullPathToFile = [stack(1).file, '\', file];
-            else
-                self.fullPathToFile = [pwd(), '\', file];
-            end
-            
+        function self = ExcelMatlab(fullPathToFile)
+            self.fullPathToFile = fullPathToFile
             self.excelApplication = actxserver('Excel.Application');
             self.excelApplication.DisplayAlerts = false;
             try
-                self.excelFileWorkbook = self.excelApplication.Workbooks.Open(self.fullPathToFile);
+                self.excelFileWorkbook = self.excelApplication.Workbooks.Open(fullPathToFile);
             catch
                 self.excelFileWorkbook = self.excelApplication.Workbooks.Add();
             end
@@ -28,8 +22,8 @@ classdef ExcelMatlab < handle
         function delete(self)
             try
                 self.excelFileWorkbook.SaveAs(self.fullPathToFile);
-            catch
-                fprintf('Excel file did not save successfully\n');
+            catch MException
+                display(MException.message);
             end
             Quit(self.excelApplication);
             delete(self.excelApplication);
