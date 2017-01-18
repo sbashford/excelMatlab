@@ -8,9 +8,14 @@ classdef ExcelMatlabTester < matlab.unittest.TestCase
     end
     
     methods (TestClassSetup)
-        function somethingElseOrWhatever(self)
+        function classSetup(self)
             self.fullPathToTestFile = [pwd(), '\', self.TEST_FILE];
             self.deleteTestFile();
+        end
+    end
+    
+    methods (TestMethodSetup)
+        function methodSetup(self)
             self.addTeardown(@self.deleteTestFile);
         end
     end
@@ -31,6 +36,15 @@ classdef ExcelMatlabTester < matlab.unittest.TestCase
             delete(myExcel);
             numericArray = xlsread(self.fullPathToTestFile, 'testSheet');
             self.verifyEqual(randomArray, numericArray);
+        end
+        
+        function verifyCellPlacement(self)
+            myExcel = ExcelMatlab(self.fullPathToTestFile);
+            randomNumber = rand(1);
+            myExcel.writeToSheet(randomNumber, 'testSheet', 17, 31);
+            delete(myExcel);
+            numberRead = xlsread(self.fullPathToTestFile, 'testSheet', 'AE17:AE17');
+            self.verifyEqual(randomNumber, numberRead);
         end
     end
 end
