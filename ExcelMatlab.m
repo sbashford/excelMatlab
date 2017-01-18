@@ -15,16 +15,16 @@ classdef ExcelMatlab < handle
             try
                 self.workbook = self.app.Workbooks.Open(fullPathToFile);
             catch
-                try
-                    self.workbook = self.app.Workbooks.Add();
-                    self.workbook.SaveAs(fullPathToFile);
-                catch MException
-                    display(MException.message);
-                    throw(MException);
-                end
+                self.workbook = self.app.Workbooks.Add();
             end
             
-            self.successSaving = true;
+            try
+                self.workbook.SaveAs(fullPathToFile);
+                self.successSaving = true;
+            catch MException
+                display(MException.message);
+                throw(MException);
+            end
             self.sheets = self.workbook.Sheets;
         end
         
