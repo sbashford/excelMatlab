@@ -2,14 +2,23 @@ classdef ExcelSheetWriter < handle
     properties
         workbookSheets
         sheetName
-        sheetNumber
     end
     
     methods
         function self = ExcelSheetWriter(workbookSheets, sheetName)
             self.workbookSheets = workbookSheets;
             self.sheetName = sheetName;
-            self.sheetNumber = self.findSheetNumber(sheetName);
+        end
+
+        function write(self, data, topLeftRow, topLeftCol)
+            sheetNumber = self.findSheetNumber(self.sheetName);
+            if sheetNumber
+                sheetToWrite = self.workbookSheets.Item(self.sheetNumber);
+            else
+                sheetToWrite = self.addNewSheet();
+            end
+            excelRangeName = ExcelSheetWriter.getExcelRangeName(topLeftRow, topLeftCol, data);
+            self.tryWritingToSheet(data, sheetToWrite, excelRangeName);
         end
     end
     
@@ -22,21 +31,7 @@ classdef ExcelSheetWriter < handle
             end
             [~, sheetNumber] = ismember(sheetName, namesOfSheets);
         end
-    end
-    
-    methods
-        function write(self, data, topLeftRow, topLeftCol)
-            if self.sheetNumber
-                sheetToWrite = self.workbookSheets.Item(self.sheetNumber);
-            else
-                sheetToWrite = self.addNewSheet();
-            end
-            excelRangeName = ExcelSheetWriter.getExcelRangeName(topLeftRow, topLeftCol, data);
-            self.tryWritingToSheet(data, sheetToWrite, excelRangeName);
-        end
-    end
-    
-    methods (Access = 'private')
+        
         function newSheet = addNewSheet(self)
             numberOfSheets = self.workbookSheets.Count;
             self.workbookSheets.Add([], self.workbookSheets.Item(numberOfSheets));
