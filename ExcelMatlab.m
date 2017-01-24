@@ -37,6 +37,7 @@ classdef ExcelMatlab < handle
         end
         
         function writeToSheet(self, data, sheet, topLeftRow, topLeftCol)
+            assert(ischar(sheet), 'Sheet must be a string');
             sheetNumber = self.findSheetNumber(sheet);
             if sheetNumber
                 sheetToWrite = self.sheets.Item(sheetNumber);
@@ -51,8 +52,13 @@ classdef ExcelMatlab < handle
             BottomRightCol = size(data, 2) + topLeftCol - 1;
             BottomRightRow = size(data, 1) + topLeftRow - 1;
             excelRange = ExcelMatlab.getExcelRangeString(topLeftCol, BottomRightCol, topLeftRow, BottomRightRow);
-            rangeToWrite = get(sheetToWrite, 'Range', excelRange);
-            rangeToWrite.Value = data;
+            try
+                rangeToWrite = get(sheetToWrite, 'Range', excelRange);
+                rangeToWrite.Value = data;
+            catch MException
+                fprintf('Invalid range specified\n');
+                throw(MException)
+            end
         end
     end
     
