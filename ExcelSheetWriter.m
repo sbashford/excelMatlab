@@ -17,7 +17,7 @@ classdef ExcelSheetWriter < handle
         function sheetNumber = findSheetNumber(self, sheetName)
             numberOfSheets = self.workbookSheets.Count;
             namesOfSheets = cell(1, numberOfSheets);
-            for i = 1:numberOfSheets
+            for i = 1:numberOfSheets;
                 namesOfSheets{i} = self.workbookSheets.Item(i).Name;
             end
 
@@ -32,47 +32,37 @@ classdef ExcelSheetWriter < handle
             else
                 sheetToWrite = self.addNewSheet();
             end
-            excelRange = ExcelSheetWriter.getExcelRange(topLeftRow, topLeftCol, data);
-            self.tryWritingToSheet(data, sheetToWrite, excelRange);
+            excelRangeName = ExcelSheetWriter.getExcelRangeName(topLeftRow, topLeftCol, data);
+            self.tryWritingToSheet(data, sheetToWrite, excelRangeName);
         end
     end
     
     methods (Access = 'private')
-        function sheetToWrite = addNewSheet(self)
+        function newSheet = addNewSheet(self)
             numberOfSheets = self.workbookSheets.Count;
             self.workbookSheets.Add([], self.workbookSheets.Item(numberOfSheets));
             numberOfSheets = numberOfSheets + 1;
-            sheetToWrite = self.workbookSheets.Item(numberOfSheets);
-            sheetToWrite.Name = self.sheetName;
-        end
-        
-        function tryWritingToSheet(~, data, sheetToWrite, excelRange)
-            try
-                rangeToWrite = get(sheetToWrite, 'Range', excelRange);
-                rangeToWrite.Value = data;
-            catch MException
-                fprintf('Invalid range specified\n');
-                throw(MException);
-            end
+            newSheet = self.workbookSheets.Item(numberOfSheets);
+            newSheet.Name = self.sheetName;
         end
     end
     
     methods (Static)
-        function rangeString = getExcelRange(topLeftRow, topLeftCol, data)
+        function rangeName = getExcelRangeName(topLeftRow, topLeftCol, data)
             BottomRightCol = size(data, 2) + topLeftCol - 1;
             BottomRightRow = size(data, 1) + topLeftRow - 1;
-            rangeString = ExcelSheetWriter.getExcelRangeString(topLeftCol, BottomRightCol, topLeftRow, BottomRightRow);
+            rangeName = ExcelSheetWriter.getRangeName(topLeftCol, BottomRightCol, topLeftRow, BottomRightRow);
         end
     end
     
     methods (Static, Access = 'private')
-        function rangeString = getExcelRangeString(firstColumn, lastColumn, firstRow, lastRow)
-            firstColumnString = ExcelSheetWriter.getColumnStringFromColumnNumber(firstColumn);
-            lastColumnString = ExcelSheetWriter.getColumnStringFromColumnNumber(lastColumn);
-            rangeString = [firstColumnString, num2str(firstRow), ':', lastColumnString, num2str(lastRow)];
+        function rangeName = getRangeName(firstColumn, lastColumn, firstRow, lastRow)
+            firstColumnName = ExcelSheetWriter.getColumnNameFromColumnNumber(firstColumn);
+            lastColumnName = ExcelSheetWriter.getColumnNameFromColumnNumber(lastColumn);
+            rangeName = [firstColumnName, num2str(firstRow), ':', lastColumnName, num2str(lastRow)];
         end
         
-        function columnString = getColumnStringFromColumnNumber(columnNumber)
+        function columnName = getColumnNameFromColumnNumber(columnNumber)
             numberOfLettersInAlphabet = 26;
             if columnNumber > numberOfLettersInAlphabet
                 counter = 0;
@@ -82,9 +72,21 @@ classdef ExcelSheetWriter < handle
                     counter = counter + 1;
                 end
                 
-                columnString = [char('A' + counter - 1), char('A' + columnNumber - 1)];
+                columnName = [char('A' + counter - 1), char('A' + columnNumber - 1)];
             else
-                columnString = char('A' + columnNumber - 1);
+                columnName = char('A' + columnNumber - 1);
+            end
+        end
+    end
+    
+    methods (Access = 'private')
+        function tryWritingToSheet(~, data, sheetToWrite, excelRangeName)
+            try
+                rangeToWrite = get(sheetToWrite, 'Range', excelRangeName);
+                rangeToWrite.Value = data;
+            catch MException
+                fprintf('Invalid range specified\n');
+                throw(MException);
             end
         end
     end
