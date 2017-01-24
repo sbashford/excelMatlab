@@ -20,7 +20,6 @@ classdef ExcelSheetWriter < handle
             for i = 1:numberOfSheets;
                 namesOfSheets{i} = self.workbookSheets.Item(i).Name;
             end
-
             [~, sheetNumber] = ismember(sheetName, namesOfSheets);
         end
     end
@@ -66,12 +65,10 @@ classdef ExcelSheetWriter < handle
             numberOfLettersInAlphabet = 26;
             if columnNumber > numberOfLettersInAlphabet
                 counter = 0;
-                
-                while (columnNumber - numberOfLettersInAlphabet > 0)
+                while columnNumber - numberOfLettersInAlphabet > 0
                     columnNumber = columnNumber - numberOfLettersInAlphabet;
                     counter = counter + 1;
                 end
-                
                 columnName = [char('A' + counter - 1), char('A' + columnNumber - 1)];
             else
                 columnName = char('A' + columnNumber - 1);
