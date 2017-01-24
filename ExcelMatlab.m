@@ -1,5 +1,5 @@
 classdef ExcelMatlab < handle
-    properties (Access = 'protected')
+    properties (Access = 'private')
         app
         workbook
         sheets
@@ -9,6 +9,7 @@ classdef ExcelMatlab < handle
     
     methods
         function self = ExcelMatlab(fullPathToFile)
+            assert(ischar(fullPathToFile), 'Path must be a string');
             self.fullPathToFile = fullPathToFile;
             self.app = COM.Excel_Application('server', '', 'IDispatch');
             self.app.DisplayAlerts = false;
@@ -62,7 +63,7 @@ classdef ExcelMatlab < handle
         end
     end
     
-    methods (Access = 'protected')
+    methods (Access = 'private')
         function sheetNumber = findSheetNumber(self, sheet)
             numberOfSheets = self.sheets.Count;
             namesOfSheets = cell(1, numberOfSheets);
