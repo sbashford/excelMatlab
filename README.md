@@ -10,5 +10,5 @@ Open file called *fileName* and write random matrix to sheet called *sheetName*.
 data = rand(20);
 fullPathToFile = [pwd(), '\fileName.ext'];
 myExcel = ExcelMatlab(fullPathToFile);
-myExcel.writeToSheet('sheetName', data, 1, 5);
+myExcel.writeToSheet(data, 'sheetName', 1, 5);
 ```
