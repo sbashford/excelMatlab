@@ -101,24 +101,18 @@ classdef ExcelMatlab < handle
     
     methods (Static)
         function rangeName = getRangeName(firstColumn, lastColumn, firstRow, lastRow)
-            firstColumnName = ExcelMatlab.getColumnNameFromColumnNumber(firstColumn);
-            lastColumnName = ExcelMatlab.getColumnNameFromColumnNumber(lastColumn);
+            firstColumnName = ExcelMatlab.getColumnNameFromNumber(firstColumn);
+            lastColumnName = ExcelMatlab.getColumnNameFromNumber(lastColumn);
             rangeName = [firstColumnName, num2str(firstRow), ':', lastColumnName, num2str(lastRow)];
         end
     end
     
     methods (Static, Access = 'private')
-        function columnName = getColumnNameFromColumnNumber(columnNumber)
+        function columnName = getColumnNameFromNumber(n)
             numberOfLettersInAlphabet = 26;
-            if columnNumber > numberOfLettersInAlphabet
-                counter = 0;
-                while columnNumber - numberOfLettersInAlphabet > 0
-                    columnNumber = columnNumber - numberOfLettersInAlphabet;
-                    counter = counter + 1;
-                end
-                columnName = [char('A' + counter - 1), char('A' + columnNumber - 1)];
+            if n > numberOfLettersInAlphabet
             else
-                columnName = char('A' + columnNumber - 1);
+                columnName = char('A' + n - 1);
             end
         end
     end
