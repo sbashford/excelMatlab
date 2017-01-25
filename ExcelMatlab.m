@@ -111,6 +111,8 @@ classdef ExcelMatlab < handle
         function columnName = getColumnNameFromNumber(n)
             numberOfLettersInAlphabet = 26;
             if n > numberOfLettersInAlphabet
+                offset = floor((n - 1) / numberOfLettersInAlphabet);
+                columnName = [char('A' + offset - 1), char('A' + mod(n - 1, numberOfLettersInAlphabet))];
             else
                 columnName = char('A' + n - 1);
             end
