@@ -11,6 +11,7 @@ classdef ExcelMatlab < handle
         function self = ExcelMatlab(fullPathToFile)
             assert(ischar(fullPathToFile), 'Path must be a string.');
             assert(~isempty(fileparts(fullPathToFile)), 'Invalid path entered.');
+            
             self.fullPathToFile = fullPathToFile;
             self.startExcel();
             self.openWorkbook();
@@ -50,14 +51,12 @@ classdef ExcelMatlab < handle
             assert(self.isNonnegativeInteger(topLeftRow) && ...
                    self.isNonnegativeInteger(topLeftCol), 'Row and column must be nonnegative integers.');
 
-            sheetNumber = self.findSheetNumber(sheetName);
-            if sheetNumber
-                sheetToWrite = self.workbookSheets.Item(sheetNumber);
-            else
-                sheetToWrite = self.addNewSheet(sheetName);
-            end
-            excelRangeName = ExcelMatlab.getExcelRangeName(topLeftRow, topLeftCol, data);
-            self.tryWritingToSheet(data, sheetToWrite, excelRangeName);
+            sheetToWrite = self.getSheetToWrite(sheetName);
+            
+            BottomRightCol = size(data, 2) + topLeftCol - 1;
+            BottomRightRow = size(data, 1) + topLeftRow - 1;
+            rangeName = ExcelMatlab.getRangeName(topLeftCol, BottomRightCol, topLeftRow, BottomRightRow);
+            self.tryWritingToSheet(data, sheetToWrite, rangeName);
         end
     end
     
@@ -73,6 +72,15 @@ classdef ExcelMatlab < handle
     end
     
     methods (Access = 'private')
+        function sheetToWrite = getSheetToWrite(self, sheetName)
+            sheetNumber = self.findSheetNumber(sheetName);
+            if sheetNumber
+                sheetToWrite = self.workbookSheets.Item(sheetNumber);
+            else
+                sheetToWrite = self.addNewSheet(sheetName);
+            end
+        end
+        
         function sheetNumber = findSheetNumber(self, sheetName)
             numberOfSheets = self.workbookSheets.Count;
             namesOfSheets = cell(1, numberOfSheets);
@@ -92,20 +100,14 @@ classdef ExcelMatlab < handle
     end
     
     methods (Static)
-        function rangeName = getExcelRangeName(topLeftRow, topLeftCol, data)
-            BottomRightCol = size(data, 2) + topLeftCol - 1;
-            BottomRightRow = size(data, 1) + topLeftRow - 1;
-            rangeName = ExcelMatlab.getRangeName(topLeftCol, BottomRightCol, topLeftRow, BottomRightRow);
-        end
-    end
-    
-    methods (Static, Access = 'private')
         function rangeName = getRangeName(firstColumn, lastColumn, firstRow, lastRow)
             firstColumnName = ExcelMatlab.getColumnNameFromColumnNumber(firstColumn);
             lastColumnName = ExcelMatlab.getColumnNameFromColumnNumber(lastColumn);
             rangeName = [firstColumnName, num2str(firstRow), ':', lastColumnName, num2str(lastRow)];
         end
-        
+    end
+    
+    methods (Static, Access = 'private')
         function columnName = getColumnNameFromColumnNumber(columnNumber)
             numberOfLettersInAlphabet = 26;
             if columnNumber > numberOfLettersInAlphabet
