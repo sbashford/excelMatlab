@@ -8,7 +8,8 @@ classdef ExcelMatlab < handle
     
     methods
         function self = ExcelMatlab(fullPathToFile)
-            assert(ischar(fullPathToFile), 'Path must be a string');
+            assert(ischar(fullPathToFile), 'Path must be a string.');
+            assert(~isempty(fileparts(fullPathToFile)), 'Invalid path entered.');
             self.fullPathToFile = fullPathToFile;
             self.startExcel();
             self.openWorkbook();
@@ -44,6 +45,8 @@ classdef ExcelMatlab < handle
     methods
         function writeToSheet(self, data, sheetName, topLeftRow, topLeftCol)
             assert(ischar(sheetName), 'Sheet must be a string');
+            assert(self.isNonnegativeInteger(topLeftRow) && ...
+                   self.isNonnegativeInteger(topLeftCol), 'Row and column must be nonnegative integers.');
             workbookSheets = self.workbook.Sheets;
             sheetWriter = ExcelSheetWriter(workbookSheets, sheetName);
             sheetWriter.write(data, topLeftRow, topLeftCol);
@@ -55,6 +58,17 @@ classdef ExcelMatlab < handle
             end
             Quit(self.app);
             delete(self.app);
+        end
+    end
+    
+    methods (Access = 'private', Static)
+        function validity = isNonnegativeInteger(n)
+            try
+                zeros(1, n);
+                validity = n > 0;
+            catch
+                validity = false;
+            end
         end
     end
 end
