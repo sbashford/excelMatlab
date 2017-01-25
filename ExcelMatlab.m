@@ -9,8 +9,8 @@ classdef ExcelMatlab < handle
     
     methods
         function self = ExcelMatlab(fullPathToFile)
-            assert(ischar(fullPathToFile), 'Path must be a string.');
-            assert(~isempty(fileparts(fullPathToFile)), 'Invalid path entered.');
+            assert(ischar(fullPathToFile), 'ExcelMatlab:invalidPath', 'Path must be a string.');
+            assert(~isempty(fileparts(fullPathToFile)), 'ExcelMatlab:invalidPath', 'Invalid path entered.');
             
             self.fullPathToFile = fullPathToFile;
             self.startExcel();
@@ -38,24 +38,24 @@ classdef ExcelMatlab < handle
             try
                 self.workbook.SaveAs(self.fullPathToFile);
                 self.successSaving = true;
-            catch MException
-                fprintf(['unable to write to ', self.fullPathToFile, '\n']);
-                throw(MException);
+            catch
+                error('ExcelMatlab:invalidPath', ['unable to write to ', self.fullPathToFile, '\n']);
             end
         end
     end
     
     methods
         function writeToSheet(self, data, sheetName, topLeftRow, topLeftCol)
-            assert(ischar(sheetName), 'Sheet must be a string');
+            assert(ischar(sheetName), 'ExcelMatlab:invalidSheetName', 'Sheet must be a string');
             assert(self.isNonnegativeInteger(topLeftRow) && ...
-                   self.isNonnegativeInteger(topLeftCol), 'Row and column must be nonnegative integers.');
-
-            sheetToWrite = self.getSheetToWrite(sheetName);
+                   self.isNonnegativeInteger(topLeftCol), 'ExcelMatlab:invalidRowCol', ...
+                   'Row and column must be nonnegative integers.');
             
             BottomRightCol = size(data, 2) + topLeftCol - 1;
             BottomRightRow = size(data, 1) + topLeftRow - 1;
             rangeName = ExcelMatlab.getRangeName(topLeftCol, BottomRightCol, topLeftRow, BottomRightRow);
+            
+            sheetToWrite = self.getSheetToWrite(sheetName);
             self.tryWritingToSheet(data, sheetToWrite, rangeName);
         end
     end
