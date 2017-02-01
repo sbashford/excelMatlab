@@ -39,7 +39,7 @@ classdef ExcelMatlab < handle
                 self.workbook.SaveAs(self.fullPathToFile);
                 self.successSaving = true;
             catch
-                error('ExcelMatlab:invalidPath', ['unable to write to ', self.fullPathToFile, '\n']);
+                error('ExcelMatlab:invalidPath', 'unable to write to %s\n', self.fullPathToFile);
             end
         end
     end
