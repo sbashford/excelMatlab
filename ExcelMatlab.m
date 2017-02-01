@@ -58,6 +58,32 @@ classdef ExcelMatlab < handle
             sheetToWrite = self.getSheetToWrite(sheetName);
             self.tryWritingToSheet(data, sheetToWrite, rangeName);
         end
+        
+        function cell = readCell(self, sheetName, row, col)
+            assert(ischar(sheetName), 'ExcelMatlab:invalidSheetName', 'Sheet must be a string');
+            assert(self.isNonnegativeInteger(row) && ...
+                   self.isNonnegativeInteger(col), 'ExcelMatlab:invalidRowCol', ...
+                   'Row and column must be nonnegative integers.');
+            
+            rangeName = ExcelMatlab.getRangeName(col, col, row, row);
+            
+            sheetToRead = self.getSheetToWrite(sheetName);
+            cell = self.tryReadingFromSheet(sheetToRead, rangeName);
+        end
+        
+        function columnData = readNumericColumnRange(self, sheetName, col, firstRow, lastRow)
+            assert(ischar(sheetName), 'ExcelMatlab:invalidSheetName', 'Sheet must be a string');
+            assert(self.isNonnegativeInteger(col) && ...
+                   self.isNonnegativeInteger(firstRow) && ...
+                   self.isNonnegativeInteger(lastRow), 'ExcelMatlab:invalidRowCol', ...
+                   'Row and column must be nonnegative integers.');
+            
+            rangeName = ExcelMatlab.getRangeName(col, col, firstRow, lastRow);
+            
+            sheetToRead = self.getSheetToWrite(sheetName);
+            columnCell = self.tryReadingFromSheet(sheetToRead, rangeName);
+            columnData = cell2mat(columnCell);
+        end
     end
     
     methods (Access = 'private', Static)
@@ -124,6 +150,16 @@ classdef ExcelMatlab < handle
             try
                 rangeToWrite = get(sheetToWrite, 'Range', excelRangeName);
                 rangeToWrite.Value = data;
+            catch MException
+                fprintf('Invalid range specified\n');
+                throw(MException);
+            end
+        end
+        
+        function data = tryReadingFromSheet(~, sheetToRead, excelRangeName)
+            try
+                rangeToRead = get(sheetToRead, 'Range', excelRangeName);
+                data = rangeToRead.Value;
             catch MException
                 fprintf('Invalid range specified\n');
                 throw(MException);

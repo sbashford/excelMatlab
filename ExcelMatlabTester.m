@@ -35,7 +35,7 @@ classdef ExcelMatlabTester < matlab.unittest.TestCase
             myExcel.writeToSheet(randomArray, 'testSheet', 1, 1);
             delete(myExcel);
             numericArray = xlsread(self.fullPathToTestFile, 'testSheet');
-            self.verifyEqual(randomArray, numericArray);
+            self.verifyEqual(numericArray, randomArray);
         end
         
         function verifyCellPlacement(self)
@@ -44,7 +44,25 @@ classdef ExcelMatlabTester < matlab.unittest.TestCase
             myExcel.writeToSheet(randomNumber, 'testSheet', 17, 31);
             delete(myExcel);
             numberRead = xlsread(self.fullPathToTestFile, 'testSheet', 'AE17:AE17');
-            self.verifyEqual(randomNumber, numberRead);
+            self.verifyEqual(numberRead, randomNumber);
+        end
+        
+        function readNumericCell(self)
+            randomNumber = rand(1);
+            xlswrite(self.fullPathToTestFile, randomNumber, 'testSheet', 'B11');
+            myExcel = ExcelMatlab(self.fullPathToTestFile);
+            valueRead = myExcel.readCell('testSheet', 11, 2);
+            delete(myExcel);
+            self.verifyEqual(valueRead, randomNumber);
+        end
+        
+        function readNumericColumn(self)
+            randomCol = rand(10, 1);
+            xlswrite(self.fullPathToTestFile, randomCol, 'testSheet', 'C2:C11');
+            myExcel = ExcelMatlab(self.fullPathToTestFile);
+            colRead = myExcel.readNumericColumnRange('testSheet', 3, 2, 11);
+            delete(myExcel);
+            self.verifyEqual(colRead, randomCol);
         end
         
         function assertInvalidPath(self)
