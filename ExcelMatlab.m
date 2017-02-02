@@ -8,15 +8,27 @@ classdef ExcelMatlab < handle
     end
     
     methods
-        function self = ExcelMatlab(fullPathToFile)
+        function self = ExcelMatlab(varargin)
+            assert(nargin == 1 || nargin == 2, 'ExcelMatlab:invalidNumberArgs', 'Argument error.');
+            fullPathToFile = varargin{1};
             assert(ischar(fullPathToFile), 'ExcelMatlab:invalidPath', 'Path must be a string.');
             assert(~isempty(fileparts(fullPathToFile)), 'ExcelMatlab:invalidPath', 'Invalid path entered.');
             
+            if nargin == 2
+                assert(strcmpi(varargin{2}, 'w'), 'ExcelMatlab:invalidArgument', 'If seeking write permission, use ''w'' or ''W''.');
+            end
+            
             self.fullPathToFile = fullPathToFile;
             self.startExcel();
-            self.openWorkbook();
-            self.workbookSheets = self.workbook.Sheets;
-            self.confirmWritableFile();
+            
+            if nargin == 1
+                self.openWorkbookForReading();
+                self.workbookSheets = self.workbook.Sheets;
+            else
+                self.openWorkbookForWriting();
+                self.workbookSheets = self.workbook.Sheets;
+                self.confirmWritableFile();
+            end
         end
     end
 
@@ -26,11 +38,19 @@ classdef ExcelMatlab < handle
             self.app.DisplayAlerts = false;
         end
         
-        function openWorkbook(self)
+        function openWorkbookForWriting(self)
             try
                 self.workbook = self.app.Workbooks.Open(self.fullPathToFile);
             catch
                 self.workbook = self.app.Workbooks.Add();
+            end
+        end
+        
+        function openWorkbookForReading(self)
+            try
+                self.workbook = self.app.Workbooks.Open(self.fullPathToFile, [], true);
+            catch
+                error('ExcelMatlab:openFileForReading', 'unable to read from %s\n', self.fullPathToFile);
             end
         end
         
@@ -46,6 +66,7 @@ classdef ExcelMatlab < handle
     
     methods
         function writeToSheet(self, data, sheetName, topLeftRow, topLeftCol)
+            assert(self.successSaving, 'ExcelMatlab:invalidPermission', 'Cannot write to file with current permission.');
             assert(ischar(sheetName), 'ExcelMatlab:invalidSheetName', 'Sheet must be a string');
             assert(self.isNonnegativeInteger(topLeftRow) && ...
                    self.isNonnegativeInteger(topLeftCol), 'ExcelMatlab:invalidRowCol', ...

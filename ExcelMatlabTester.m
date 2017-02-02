@@ -31,7 +31,7 @@ classdef ExcelMatlabTester < matlab.unittest.TestCase
     methods (Test)
         function writeNumericTest(self)
             randomArray = rand(10);
-            myExcel = ExcelMatlab(self.fullPathToTestFile);
+            myExcel = ExcelMatlab(self.fullPathToTestFile, 'w');
             myExcel.writeToSheet(randomArray, 'testSheet', 1, 1);
             delete(myExcel);
             numericArray = xlsread(self.fullPathToTestFile, 'testSheet');
@@ -39,7 +39,7 @@ classdef ExcelMatlabTester < matlab.unittest.TestCase
         end
         
         function verifyCellPlacement(self)
-            myExcel = ExcelMatlab(self.fullPathToTestFile);
+            myExcel = ExcelMatlab(self.fullPathToTestFile, 'w');
             randomNumber = rand(1);
             myExcel.writeToSheet(randomNumber, 'testSheet', 17, 31);
             delete(myExcel);
@@ -66,21 +66,20 @@ classdef ExcelMatlabTester < matlab.unittest.TestCase
         end
         
         function assertInvalidPath(self)
-            self.verifyError( @() ExcelMatlab(56), 'ExcelMatlab:invalidPath');
-            self.verifyError( @() ExcelMatlab('abc\123\4'), 'ExcelMatlab:invalidPath');
-            self.verifyError( @() ExcelMatlab('C:\\C:\'), 'ExcelMatlab:invalidPath');
-            self.verifyError( @() ExcelMatlab('plsNot<'), 'ExcelMatlab:invalidPath');
-            self.verifyError( @() ExcelMatlab('*'), 'ExcelMatlab:invalidPath');
-            self.verifyError( @() ExcelMatlab('C:\notReal\definitelyNotReal'), 'ExcelMatlab:invalidPath');
+            self.verifyError( @() ExcelMatlab(56, 'w'), 'ExcelMatlab:invalidPath');
+            self.verifyError( @() ExcelMatlab('abc\123\4', 'w'), 'ExcelMatlab:invalidPath');
+            self.verifyError( @() ExcelMatlab('C:\\C:\', 'w'), 'ExcelMatlab:invalidPath');
+            self.verifyError( @() ExcelMatlab('plsNot<', 'w'), 'ExcelMatlab:invalidPath');
+            self.verifyError( @() ExcelMatlab('*', 'w'), 'ExcelMatlab:invalidPath');
         end
         
         function assertInvalidSheet(self)
-            myExcel = ExcelMatlab(self.fullPathToTestFile);
+            myExcel = ExcelMatlab(self.fullPathToTestFile, 'w');
             self.verifyError( @() writeToSheet(myExcel, [1,2], 52, 5, 5), 'ExcelMatlab:invalidSheetName');
         end
         
         function assertInvalidRowCol(self)
-            myExcel = ExcelMatlab(self.fullPathToTestFile);
+            myExcel = ExcelMatlab(self.fullPathToTestFile, 'w');
             self.verifyError( @() writeToSheet(myExcel, [1,2], 'testSheet', 1.1, 3), 'ExcelMatlab:invalidRowCol');
             self.verifyError( @() writeToSheet(myExcel, [1,2], 'testSheet', 0, 3), 'ExcelMatlab:invalidRowCol');
             self.verifyError( @() writeToSheet(myExcel, [1,2], 'testSheet', -1, 3), 'ExcelMatlab:invalidRowCol');
