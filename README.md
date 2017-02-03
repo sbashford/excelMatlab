@@ -9,6 +9,6 @@ Open file called *fileName* and write random matrix to sheet called *sheetName*.
 ```matlab
 data = rand(20);
 fullPathToFile = [pwd(), '\fileName.ext'];
-myExcel = ExcelMatlab(fullPathToFile);
+myExcel = ExcelMatlab(fullPathToFile, 'w');
 myExcel.writeToSheet(data, 'sheetName', 1, 5);
 ```
