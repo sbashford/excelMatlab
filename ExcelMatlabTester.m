@@ -87,6 +87,12 @@ classdef ExcelMatlabTester < matlab.unittest.TestCase
             self.verifyError( @() writeToSheet(myExcel, [1,2], 'testSheet', Inf, 3), 'ExcelMatlab:invalidRowCol');
             self.verifyError( @() writeToSheet(myExcel, [1,2], 'testSheet', 1i, 3), 'ExcelMatlab:invalidRowCol');
         end
+        
+        function assertInvalidPermission(self)
+            xlswrite(self.fullPathToTestFile, 1, 'testSheet');
+            myExcel = ExcelMatlab(self.fullPathToTestFile);
+            self.verifyError( @() writeToSheet(myExcel, [1,2], 'testSheet', 1, 1), 'ExcelMatlab:invalidPermission');
+        end
     end
 end
 
