@@ -88,7 +88,7 @@ classdef ExcelMatlab < handle
             
             rangeName = ExcelMatlab.getRangeName(col, col, row, row);
             
-            sheetToRead = self.getSheetToWrite(sheetName);
+            sheetToRead = self.getSheetToRead(sheetName);
             cell = self.tryReadingFromSheet(sheetToRead, rangeName);
         end
         
@@ -101,7 +101,7 @@ classdef ExcelMatlab < handle
             
             rangeName = ExcelMatlab.getRangeName(col, col, firstRow, lastRow);
             
-            sheetToRead = self.getSheetToWrite(sheetName);
+            sheetToRead = self.getSheetToRead(sheetName);
             columnCell = self.tryReadingFromSheet(sheetToRead, rangeName);
             columnData = cell2mat(columnCell);
         end
@@ -125,6 +125,15 @@ classdef ExcelMatlab < handle
                 sheetToWrite = self.workbookSheets.Item(sheetNumber);
             else
                 sheetToWrite = self.addNewSheet(sheetName);
+            end
+        end
+        
+        function sheetToRead = getSheetToRead(self, sheetName)
+            sheetNumber = self.findSheetNumber(sheetName);
+            if sheetNumber
+                sheetToRead = self.workbookSheets.Item(sheetNumber);
+            else
+                error('ExcelMatlab:invalidSheet', 'Sheet specified not found in workbook.');
             end
         end
         

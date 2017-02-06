@@ -73,7 +73,7 @@ classdef ExcelMatlabTester < matlab.unittest.TestCase
             self.verifyError( @() ExcelMatlab('*', 'w'), 'ExcelMatlab:invalidPath');
         end
         
-        function assertInvalidSheet(self)
+        function assertInvalidSheetName(self)
             myExcel = ExcelMatlab(self.fullPathToTestFile, 'w');
             self.verifyError( @() writeToSheet(myExcel, [1,2], 52, 5, 5), 'ExcelMatlab:invalidSheetName');
         end
@@ -92,6 +92,13 @@ classdef ExcelMatlabTester < matlab.unittest.TestCase
             xlswrite(self.fullPathToTestFile, 1, 'testSheet');
             myExcel = ExcelMatlab(self.fullPathToTestFile);
             self.verifyError( @() writeToSheet(myExcel, [1,2], 'testSheet', 1, 1), 'ExcelMatlab:invalidPermission');
+        end
+        
+        function assertInvalidSheet(self)
+            xlswrite(self.fullPathToTestFile, 1, 'testSheet');
+            myExcel = ExcelMatlab(self.fullPathToTestFile);
+            self.verifyError( @() readCell(myExcel, 'notSheet', 1, 1), 'ExcelMatlab:invalidSheet');
+            self.verifyError( @() readNumericColumnRange(myExcel, 'notSheet', 1, 1, 1), 'ExcelMatlab:invalidSheet');
         end
     end
 end
