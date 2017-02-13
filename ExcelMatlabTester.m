@@ -5,12 +5,15 @@ classdef ExcelMatlabTester < matlab.unittest.TestCase
     
     properties (Access = 'private')
         fullPathToTestFile
+        defaultWarning
     end
     
     methods (TestClassSetup)
         function classSetup(self)
             self.fullPathToTestFile = [pwd(), '\', self.TEST_FILE];
             self.deleteTestFile();
+            self.defaultWarning = warning('off','MATLAB:xlswrite:AddSheet');
+            self.addTeardown(@() warning(self.defaultWarning));
         end
     end
     
@@ -65,12 +68,17 @@ classdef ExcelMatlabTester < matlab.unittest.TestCase
             self.verifyEqual(colRead, randomCol);
         end
         
-        function assertInvalidPath(self)
-            self.verifyError( @() ExcelMatlab(56, 'w'), 'ExcelMatlab:invalidPath');
-            self.verifyError( @() ExcelMatlab('abc\123\4', 'w'), 'ExcelMatlab:invalidPath');
-            self.verifyError( @() ExcelMatlab('C:\\C:\', 'w'), 'ExcelMatlab:invalidPath');
-            self.verifyError( @() ExcelMatlab('plsNot<', 'w'), 'ExcelMatlab:invalidPath');
-            self.verifyError( @() ExcelMatlab('*', 'w'), 'ExcelMatlab:invalidPath');
+        function assertInvalidFormat(self)
+            self.verifyError( @() ExcelMatlab('word.doc', 'w'), 'ExcelMatlab:invalidFileFormat');
+            self.verifyError( @() ExcelMatlab('library.dll', 'w'), 'ExcelMatlab:invalidFileFormat');
+            self.verifyError( @() ExcelMatlab('library.lib', 'w'), 'ExcelMatlab:invalidFileFormat');
+            self.verifyError( @() ExcelMatlab('code.m', 'w'), 'ExcelMatlab:invalidFileFormat');
+            self.verifyError( @() ExcelMatlab('code.c', 'w'), 'ExcelMatlab:invalidFileFormat');
+            self.verifyError( @() ExcelMatlab('image.jpg', 'w'), 'ExcelMatlab:invalidFileFormat');
+            self.verifyError( @() ExcelMatlab('pdf.pdf', 'w'), 'ExcelMatlab:invalidFileFormat');
+            self.verifyError( @() ExcelMatlab('hype.html', 'w'), 'ExcelMatlab:invalidFileFormat');
+            self.verifyError( @() ExcelMatlab('go.exe', 'w'), 'ExcelMatlab:invalidFileFormat');
+            self.verifyError( @() ExcelMatlab('jam.wav', 'w'), 'ExcelMatlab:invalidFileFormat');
         end
         
         function assertInvalidSheetName(self)

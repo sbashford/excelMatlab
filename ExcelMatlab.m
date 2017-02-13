@@ -12,7 +12,6 @@ classdef ExcelMatlab < handle
             assert(nargin == 1 || nargin == 2, 'ExcelMatlab:invalidNumberArgs', 'Argument error.');
             fullPathToFile = varargin{1};
             assert(ischar(fullPathToFile), 'ExcelMatlab:invalidPath', 'Path must be a string.');
-            assert(~isempty(fileparts(fullPathToFile)), 'ExcelMatlab:invalidPath', 'Invalid path entered.');
             
             if nargin == 2
                 assert(strcmpi(varargin{2}, 'w'), 'ExcelMatlab:invalidArgument', 'If seeking write permission, use ''w'' or ''W''.');
@@ -44,6 +43,10 @@ classdef ExcelMatlab < handle
             catch
                 self.workbook = self.app.Workbooks.Add();
             end
+            
+            assert(~strcmpi(self.workbook.FileFormat, 'xlCurrentPlatformText'), ...
+                'ExcelMatlab:InvalidFileFormat', ...
+                'The specified file is not a valid excel format.');
         end
         
         function openWorkbookForReading(self)
@@ -52,6 +55,10 @@ classdef ExcelMatlab < handle
             catch
                 error('ExcelMatlab:openFileForReading', 'unable to read from %s\n', self.fullPathToFile);
             end
+            
+            assert(~strcmpi(self.workbook.FileFormat, 'xlCurrentPlatformText'), ...
+                'ExcelMatlab:InvalidFileFormat', ...
+                'The specified file is not a valid excel format.');
         end
         
         function confirmWritableFile(self)
