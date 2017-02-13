@@ -45,7 +45,7 @@ classdef ExcelMatlab < handle
             end
             
             assert(~strcmpi(self.workbook.FileFormat, 'xlCurrentPlatformText'), ...
-                'ExcelMatlab:InvalidFileFormat', ...
+                'ExcelMatlab:invalidFileFormat', ...
                 'The specified file is not a valid excel format.');
         end
         
@@ -57,7 +57,7 @@ classdef ExcelMatlab < handle
             end
             
             assert(~strcmpi(self.workbook.FileFormat, 'xlCurrentPlatformText'), ...
-                'ExcelMatlab:InvalidFileFormat', ...
+                'ExcelMatlab:invalidFileFormat', ...
                 'The specified file is not a valid excel format.');
         end
         
@@ -214,4 +214,3 @@ classdef ExcelMatlab < handle
         end
     end
 end
-

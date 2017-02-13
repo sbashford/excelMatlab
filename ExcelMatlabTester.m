@@ -1,19 +1,38 @@
 classdef ExcelMatlabTester < matlab.unittest.TestCase   
     properties (Constant)
         TEST_FILE = 'testExcelMatlab.xlsx'
+        BAD_FILES = { ...
+                'word.doc', ...
+                'library.dll', ...
+                'library.lib', ...
+                'code.m', ...
+                'code.c', ...
+                'image.jpg', ...
+                'pdf.pdf', ...
+                'hype.html' ...
+                'go.exe', ...
+                'jam.wav', ...
+                };
     end
     
     properties (Access = 'private')
         fullPathToTestFile
+        badFilesDirectory
         defaultWarning
     end
     
     methods (TestClassSetup)
         function classSetup(self)
-            self.fullPathToTestFile = [pwd(), '\', self.TEST_FILE];
+            self.fullPathToTestFile = [pwd(), filesep, self.TEST_FILE];
             self.deleteTestFile();
-            self.defaultWarning = warning('off','MATLAB:xlswrite:AddSheet');
+            self.defaultWarning = warning('off', 'MATLAB:xlswrite:AddSheet');
             self.addTeardown(@() warning(self.defaultWarning));
+            
+            self.badFilesDirectory = pwd();
+            for i = 1:numel(self.BAD_FILES)
+                fclose(fopen([self.badFilesDirectory, filesep, self.BAD_FILES{i}], 'w'));
+            end
+            self.addTeardown(@self.deleteBadFiles);
         end
     end
     
@@ -27,6 +46,14 @@ classdef ExcelMatlabTester < matlab.unittest.TestCase
         function deleteTestFile(self)
             if exist(self.fullPathToTestFile, 'file')
                 delete(self.fullPathToTestFile);
+            end
+        end
+        
+        function deleteBadFiles(self)
+            for i = 1:numel(self.BAD_FILES)
+                if exist([self.badFilesDirectory, filesep, self.BAD_FILES{i}], 'file')
+                    delete([self.badFilesDirectory, filesep, self.BAD_FILES{i}]);
+                end
             end
         end
     end
@@ -69,16 +96,9 @@ classdef ExcelMatlabTester < matlab.unittest.TestCase
         end
         
         function assertInvalidFormat(self)
-            self.verifyError( @() ExcelMatlab('word.doc', 'w'), 'ExcelMatlab:invalidFileFormat');
-            self.verifyError( @() ExcelMatlab('library.dll', 'w'), 'ExcelMatlab:invalidFileFormat');
-            self.verifyError( @() ExcelMatlab('library.lib', 'w'), 'ExcelMatlab:invalidFileFormat');
-            self.verifyError( @() ExcelMatlab('code.m', 'w'), 'ExcelMatlab:invalidFileFormat');
-            self.verifyError( @() ExcelMatlab('code.c', 'w'), 'ExcelMatlab:invalidFileFormat');
-            self.verifyError( @() ExcelMatlab('image.jpg', 'w'), 'ExcelMatlab:invalidFileFormat');
-            self.verifyError( @() ExcelMatlab('pdf.pdf', 'w'), 'ExcelMatlab:invalidFileFormat');
-            self.verifyError( @() ExcelMatlab('hype.html', 'w'), 'ExcelMatlab:invalidFileFormat');
-            self.verifyError( @() ExcelMatlab('go.exe', 'w'), 'ExcelMatlab:invalidFileFormat');
-            self.verifyError( @() ExcelMatlab('jam.wav', 'w'), 'ExcelMatlab:invalidFileFormat');
+            for i = 1:numel(self.BAD_FILES)
+                self.verifyBadFile(self.BAD_FILES{i});
+            end
         end
         
         function assertInvalidSheetName(self)
@@ -107,6 +127,12 @@ classdef ExcelMatlabTester < matlab.unittest.TestCase
             myExcel = ExcelMatlab(self.fullPathToTestFile);
             self.verifyError( @() readCell(myExcel, 'notSheet', 1, 1), 'ExcelMatlab:invalidSheet');
             self.verifyError( @() readNumericColumnRange(myExcel, 'notSheet', 1, 1, 1), 'ExcelMatlab:invalidSheet');
+        end
+    end
+    
+    methods (Access = 'private')
+        function verifyBadFile(self, file)
+            self.verifyError( @() ExcelMatlab([self.badFilesDirectory, filesep, file], 'w'), 'ExcelMatlab:invalidFileFormat');
         end
     end
 end
