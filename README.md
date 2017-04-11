@@ -8,14 +8,14 @@ When called more than ~3 times, xlswrite() is an expensive function in terms of 
 Open file called *fileName* and write random matrix to sheet called *sheetName*. The matrix will be anchored to its top left corner, specified by row **1** and column **5** (cell *E1*).
 ```matlab
 data = rand(20);
-fullPathToFile = [pwd(), '\fileName'];
+fullPathToFile = [pwd(), filesep(), 'fileName'];
 myExcel = ExcelMatlab(fullPathToFile, 'w');
 myExcel.writeToSheet(data, 'sheetName', 1, 5);
 ```
 
 Open file called *fileName* and read cell *G8* from sheet called *sheetName*.
 ```matlab
-fullPathToFile = [pwd(), '\fileName'];
+fullPathToFile = [pwd(), filesep(), 'fileName'];
 myExcel = ExcelMatlab(fullPathToFile);
-myExcel.readCell(data, 'sheetName', 8, 7);
+cellRead = myExcel.readCell('sheetName', 8, 7);
 ```
