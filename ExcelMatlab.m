@@ -4,7 +4,7 @@ classdef ExcelMatlab < handle
         workbook
         workbookSheets
         fullPathToFile
-        successSaving = false
+        writePermission = false
     end
     
     methods
@@ -64,7 +64,7 @@ classdef ExcelMatlab < handle
         function confirmWritableFile(self)
             try
                 self.workbook.SaveAs(self.fullPathToFile);
-                self.successSaving = true;
+                self.writePermission = true;
             catch
                 error('ExcelMatlab:invalidPath', 'unable to write to %s\n', self.fullPathToFile);
             end
@@ -73,7 +73,7 @@ classdef ExcelMatlab < handle
     
     methods
         function writeToSheet(self, data, sheetName, topLeftRow, topLeftCol)
-            assert(self.successSaving, 'ExcelMatlab:invalidPermission', 'Cannot write to file with current permission.');
+            assert(self.writePermission, 'ExcelMatlab:invalidPermission', 'Cannot write to file with current permission.');
             assert(ischar(sheetName), 'ExcelMatlab:invalidSheetName', 'Sheet must be a string');
             assert(self.isNonnegativeInteger(topLeftRow) && ...
                    self.isNonnegativeInteger(topLeftCol), 'ExcelMatlab:invalidRowCol', ...
@@ -111,6 +111,35 @@ classdef ExcelMatlab < handle
             sheetToRead = self.getSheetToRead(sheetName);
             columnCell = self.tryReadingFromSheet(sheetToRead, rangeName);
             columnData = cell2mat(columnCell);
+        end
+        
+        function sheetNames = getSheetNames(self)
+            numberOfSheets = self.workbookSheets.Count;
+            sheetNames = cell(1, numberOfSheets);
+            for i = 1:numberOfSheets;
+                sheetNames{i} = self.workbookSheets.Item(i).Name;
+            end
+        end
+        
+        function saveAs(self, fullPath, fileFormat)
+            try
+                self.workbook.SaveAs(fullPath, fileFormat);
+                self.workbook.Close();
+                self.workbook = self.app.Workbooks.Open(fullPath);
+                self.workbookSheets = self.workbook.Sheets;
+                self.fullPathToFile = fullPath;
+                self.writePermission = true;
+            catch
+                error('ExcelMatlab:invalidPath', 'unable to write to %s\n', fullPath);
+            end
+        end
+        
+        function save(self)
+            if self.writePermission
+                self.workbook.Save();
+            else
+                error('ExcelMatlab:invalidPermission', 'unable to write to %s with current permission.\n', self.fullPathToFile);
+            end
         end
     end
     
@@ -206,9 +235,6 @@ classdef ExcelMatlab < handle
     
     methods
         function delete(self)
-            if self.successSaving
-                self.workbook.SaveAs(self.fullPathToFile);
-            end
             Quit(self.app);
             delete(self.app);
         end
