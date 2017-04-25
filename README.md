@@ -11,6 +11,7 @@ data = rand(20);
 fullPathToFile = [pwd(), filesep(), 'fileName'];
 myExcel = ExcelMatlab(fullPathToFile, 'w');
 myExcel.writeToSheet(data, 'sheetName', 1, 5);
+myExcel.save();
 ```
 
 Open file called *fileName* and read cell *G8* from sheet called *sheetName*.
