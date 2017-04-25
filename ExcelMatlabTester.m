@@ -63,6 +63,7 @@ classdef ExcelMatlabTester < matlab.unittest.TestCase
             randomArray = rand(10);
             myExcel = ExcelMatlab(self.fullPathToTestFile, 'w');
             myExcel.writeToSheet(randomArray, 'testSheet', 1, 1);
+            myExcel.save();
             delete(myExcel);
             numericArray = xlsread(self.fullPathToTestFile, 'testSheet');
             self.verifyEqual(numericArray, randomArray);
@@ -72,6 +73,7 @@ classdef ExcelMatlabTester < matlab.unittest.TestCase
             myExcel = ExcelMatlab(self.fullPathToTestFile, 'w');
             randomNumber = rand(1);
             myExcel.writeToSheet(randomNumber, 'testSheet', 17, 31);
+            myExcel.save();
             delete(myExcel);
             numberRead = xlsread(self.fullPathToTestFile, 'testSheet', 'AE17:AE17');
             self.verifyEqual(numberRead, randomNumber);
