@@ -7,7 +7,7 @@ for iterations = 1:10
         xlswrite(file, data, sheet);
     end
     elapsedTime = toc();
-    fprintf('Finished xlswrite() %d times with %d seconds\n', iterations, elapsedTime);
+    fprintf('Finished xlswrite() %d time(s) in %d seconds\n', iterations, elapsedTime);
     tic();
     myExcel = ExcelMatlab(which(file), 'w');
     for i = 1:iterations
@@ -15,5 +15,5 @@ for iterations = 1:10
     end
     delete(myExcel);
     elapsedTime = toc();
-    fprintf('Finished excelMatlab %d times with %d seconds\n', iterations, elapsedTime);
+    fprintf('Finished excelMatlab writeToSheet() %d time(s) in %d seconds\n', iterations, elapsedTime);
 end
