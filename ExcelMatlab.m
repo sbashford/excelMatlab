@@ -162,6 +162,12 @@ classdef ExcelMatlab < handle
                 sheetNames{i} = self.workbookSheets.Item(i).Name;
             end
         end
+        
+        function lastRow = findLastConsecutiveNonemptyRowBelow(self, sheetName, row, col)
+            rangeName = ExcelMatlab.getRangeName(col, col, row, row);
+            sheetToRead = self.getSheetToRead(sheetName);
+            lastRow = sheetToRead.Range(rangeName).End(-4121).Row;
+        end
     end
     
     methods (Access = private, Static)
@@ -243,19 +249,17 @@ classdef ExcelMatlab < handle
     end
     
     methods (Access = private)
-        function tryWritingToSheet(~, data, sheetToWrite, excelRangeName)
+        function tryWritingToSheet(self, data, sheetToWrite, rangeName)
             try
-                rangeToWrite = get(sheetToWrite, 'Range', excelRangeName);
-                rangeToWrite.Value = data;
+                sheetToWrite.Range(rangeName).Value = data;
             catch
                 error('ExcelMatlab:invalidRange', 'Invalid range specified');
             end
         end
         
-        function data = tryReadingFromSheet(~, sheetToRead, excelRangeName)
+        function data = tryReadingFromSheet(self, sheetToRead, rangeName)
             try
-                rangeToRead = get(sheetToRead, 'Range', excelRangeName);
-                data = rangeToRead.Value;
+                data = sheetToRead.Range(rangeName).Value;
             catch 
                 error('ExcelMatlab:invalidRange', 'Invalid range specified');
             end
