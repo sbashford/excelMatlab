@@ -3,7 +3,7 @@ classdef ExcelMatlab < handle
         excelCOM = ExcelCOM()
     end
     
-    properties
+    properties (Access = private)
         workbook
         workbookSheets
         fullPathToFile
